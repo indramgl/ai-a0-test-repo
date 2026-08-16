@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: website-sekolah-frankenphp:latest
+    container_name: website-sekolah-app
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      APP_NAME: "Website Sekolah"
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: "http://localhost"
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: school_website
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - website-sekolah
+
+  db:
+    image: postgres:16-alpine
+    container_name: website-sekolah-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: school_website
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d school_website"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - website-sekolah
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  website-sekolah:
+    driver: bridge

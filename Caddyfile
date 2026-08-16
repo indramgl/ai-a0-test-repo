@@ -1,0 +1,14 @@
+{
+	frankenphp
+}
+
+http://localhost {
+	root * /app/public
+	frankenphp
+	php_server
+	encode gzip zstd
+
+	request_body {
+		max_size 10MB
+	}
+}
