@@ -1,58 +1,254 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏫 Website Sekolah
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi **Sistem Informasi Website Sekolah** berbasis web yang dibangun dengan **Laravel**, **PostgreSQL**, **Tailwind CSS**, dan **FrankenPHP**. Aplikasi ini menyediakan halaman publik (beranda, berita, statistik), modul **PPDB** (Penerimaan Peserta Didik Baru), sistem autentikasi, serta **Dashboard Admin**.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Fitur Utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Halaman Publik
+- **Beranda (`/`)**
+  - Hero banner statis dengan teks selamat datang
+  - Sambutan Kepala Sekolah
+  - Grid 3 kolom **Berita Terbaru** (diambil dari tabel `posts`)
+  - Bagian **Statistik** (jumlah siswa, guru, dan pendaftar PPDB)
+  - Footer berisi alamat, navigasi cepat, dan hak cipta
+- **Navbar responsif** — logo kiri, menu kanan, tombol **Login**, dan *hamburger menu* untuk mobile
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Modul PPDB (`/ppdb`)
+- Form pendaftaran dengan input:
+  - Nama Lengkap
+  - NISN
+  - Asal Sekolah
+  - Nama Orang Tua
+  - Nomor Telepon / WhatsApp
+- Validasi otomatis Laravel dengan tampilan error bawaan
+- Nomor pendaftaran otomatis dibuat (format `PPDB-YYYYMMDD-XXXXXX`)
+- Status awal pendaftaran: `pending`
 
-## Learning Laravel
+### Autentikasi
+- Halaman **Login** (`/login`) dengan email & password
+- Middleware `auth` untuk melindungi halaman admin
+- Logout (`POST /logout`)
+- Role pengguna: `admin`, `guru`, `siswa`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Dashboard Admin (`/admin/dashboard`)
+- Kartu statistik:
+  - Total Pendaftar PPDB
+  - Total Berita
+  - Total Guru
+  - Total Siswa
+- Tabel **Pendaftar Terbaru** (5 data terakhir dengan status)
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 🧱 Tech Stack
 
-## Agentic Development
+| Komponen | Teknologi |
+| --- | --- |
+| Backend | Laravel (PHP 8.4+ / 8.2+) |
+| Database | PostgreSQL (default konfigurasi) |
+| Frontend | Blade + Tailwind CSS + Vite |
+| Web Server | FrankenPHP (Caddy) — opsional via Docker |
+| Container | Docker + docker-compose |
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
 
-```bash
-composer require laravel/boost --dev
+## 📁 Struktur Proyek
 
-php artisan boost:install
+```
+website_sekolah/
+├── app/
+│   ├── Http/Controllers/
+│   │   ├── HomeController.php        # Halaman beranda
+│   │   ├── RegistrationController.php # Modul PPDB (create & store)
+│   │   ├── AdminController.php       # Dashboard admin
+│   │   └── LoginController.php       # Autentikasi (show, store, logout)
+│   └── Models/
+│       ├── User.php                  # + relasi teacher(), helper role
+│       ├── Post.php
+│       ├── Teacher.php               # + relasi user()
+│       └── Registration.php
+├── database/migrations/
+│   ├── 0001_01_01_000000_create_users_table.php   # + kolom role
+│   ├── 0001_01_01_000001_create_cache_table.php
+│   ├── 0001_01_01_000002_create_jobs_table.php
+│   ├── 2026_08_16_204700_create_posts_table.php
+│   ├── 2026_08_16_204800_create_teachers_table.php
+│   └── 2026_08_16_204900_create_registrations_table.php
+├── resources/views/
+│   ├── layouts/app.blade.php         # Layout utama (navbar, footer)
+│   ├── home.blade.php                # Beranda
+│   ├── login.blade.php               # Halaman login
+│   ├── ppdb/register.blade.php       # Form PPDB
+│   └── admin/dashboard.blade.php     # Dashboard admin
+├── routes/web.php                    # Semua route
+├── tailwind.config.js
+├── vite.config.js
+├── Caddyfile                         # Config FrankenPHP
+├── Dockerfile                        # Image FrankenPHP + PHP extensions
+└── docker-compose.yml                # Orchestrasi app + PostgreSQL
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+## 🗄️ Skema Database
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Tabel `users`
+| Kolom | Tipe | Keterangan |
+| --- | --- | --- |
+| id | bigint PK | |
+| name | string | |
+| email | string UNIQUE | |
+| password | string | (ter-hash otomatis) |
+| role | string | `admin` / `guru` / `siswa` (default `siswa`) |
+| timestamps | | |
 
-## Code of Conduct
+### Tabel `posts`
+| Kolom | Tipe | Keterangan |
+| --- | --- | --- |
+| id | bigint PK | |
+| title | string | |
+| slug | string UNIQUE | |
+| content | text | |
+| image | string nullable | |
+| category | string nullable | |
+| status | string | default `published` |
+| timestamps | | |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Tabel `teachers`
+| Kolom | Tipe | Keterangan |
+| --- | --- | --- |
+| id | bigint PK | |
+| user_id | FK → users.id | cascade on delete |
+| nip | string UNIQUE | |
+| name | string | |
+| subject | string | |
+| photo | string nullable | |
+| timestamps | | |
 
-## Security Vulnerabilities
+### Tabel `registrations`
+| Kolom | Tipe | Keterangan |
+| --- | --- | --- |
+| id | bigint PK | |
+| registration_number | string UNIQUE | nomor otomatis |
+| full_name | string | |
+| nisn | string | |
+| previous_school | string | |
+| parent_name | string | |
+| phone | string | |
+| status | string | `pending` / `accepted` / `rejected` (default `pending`) |
+| timestamps | | |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Relasi Eloquent
+- `User` **hasOne** `Teacher` (a: `User::teacher()`)
+- `Teacher` **belongsTo** `User` (a: `Teacher::user()`)
+- Helper role di `User`: `isAdmin()`, `isGuru()`, `isSiswa()`
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🚀 Instalasi
+
+### Prasyarat
+- PHP 8.2+ (disarankan 8.4) dengan ekstensi: `mbstring`, `xml`, `curl`, `pgsql` (atau `sqlite`), `zip`, `gd`
+- Composer
+- Node.js + npm
+- PostgreSQL (opsional; bisa pakai Docker)
+
+### Langkah Instalasi (Lokal)
+
+```bash
+# 1. Masuk direktori proyek
+cd website_sekolah
+
+# 2. Install dependensi PHP
+composer install
+
+# 3. Salin konfigurasi environment
+cp .env.example .env
+
+# 4. Generate application key
+php artisan key:generate
+
+# 5. Sesuaikan .env untuk database (contoh PostgreSQL)
+#    DB_CONNECTION=pgsql
+#    DB_HOST=127.0.0.1
+#    DB_PORT=5432
+#    DB_DATABASE=school_website
+#    DB_USERNAME=postgres
+#    DB_PASSWORD=postgres
+
+# 6. Jalankan migrasi database
+php artisan migrate
+
+# 7. Install & build frontend assets (Tailwind CSS)
+npm install
+npm run build
+#    Saat pengembangan: npm run dev
+
+# 8. Jalankan server lokal
+php artisan serve
+```
+
+Akses aplikasi di **http://127.0.0.1:8000**.
+
+---
+
+## 🐳 Menjalankan dengan Docker (FrankenPHP + PostgreSQL)
+
+Proyek sudah menyertakan `Dockerfile`, `Caddyfile`, dan `docker-compose.yml`.
+
+```bash
+docker compose up -d --build
+```
+
+- **Aplikasi web**: http://localhost (port 80/443)
+- **PostgreSQL**: port `5432`, database `school_website`, user/password `postgres`/`postgres`
+- Volume `pgdata` untuk persistensi data
+
+> Catatan: Di dalam komposisi, `DB_HOST` mengarah ke service `db`, bukan `127.0.0.1`.
+
+---
+
+## 🧪 Pengujian
+
+```bash
+# Jalankan seluruh test suite (PHPUnit)
+php artisan test
+# atau
+vendor/bin/phpunit
+```
+
+Smoke test manual:
+- `GET /` → beranda (200)
+- `GET /ppdb` → form PPDB (200)
+- `GET /login` → halaman login (200)
+- `GET /admin/dashboard` → redirect ke login (302) jika belum autentikasi
+- `POST /ppdb` → menyimpan data & redirect (302)
+
+---
+
+## 🧭 Daftar Route (`routes/web.php`)
+
+| Method | URI | Nama | Controller@Method | Auth |
+| --- | --- | --- | --- | --- |
+| GET | `/` | `home` | `HomeController@index` | |
+| GET | `/login` | `login` | `LoginController@show` | |
+| POST | `/login` | `login.store` | `LoginController@store` | |
+| POST | `/logout` | `logout` | `LoginController@logout` | auth |
+| GET | `/ppdb` | `ppdb.create` | `RegistrationController@create` | |
+| POST | `/ppdb` | `ppdb.store` | `RegistrationController@store` | |
+| GET | `/admin/dashboard` | `admin.dashboard` | `AdminController@index` | auth |
+
+---
+
+## 🔐 Keamanan
+- Password di-hash otomatis oleh Laravel (`password` cast `hashed`)
+- `@csrf` dipakai pada semua form POST
+- Middleware `auth` melindungi area admin
+- File `.env` dan `.a0proj/` tidak diikutkan pada version control (`.gitignore`)
+
+---
+
+## 📄 Lisensi
+Proyek ini dibangun sebagai aplikasi open-source dengan lisensi **MIT**.
